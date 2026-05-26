@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
 
-@EngineRegistry.register(model_type="language_model", backend=["fsdp", "fsdp2"], device="metax")
+@EngineRegistry.register(model_type="language_model", backend=["fsdp", "fsdp2"], device="cuda", vendor="metax")
 class FSDPMetaXEngineWithLMHead(FSDPEngineWithLMHead):
     """FSDP Engine for MetaX GPUs with NCCL communication backend."""
 
@@ -38,7 +38,7 @@ class FSDPMetaXEngineWithLMHead(FSDPEngineWithLMHead):
         logger.info("FSDPMetaXEngineWithLMHead initialized for MetaX")
 
 
-@EngineRegistry.register(model_type="value_model", backend=["fsdp", "fsdp2"], device="metax")
+@EngineRegistry.register(model_type="value_model", backend=["fsdp", "fsdp2"], device="cuda", vendor="metax")
 class FSDPMetaXEngineWithValueHead(FSDPEngineWithValueHead):
     """FSDP Engine for MetaX value model training."""
 

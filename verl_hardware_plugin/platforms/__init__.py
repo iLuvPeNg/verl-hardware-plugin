@@ -36,8 +36,9 @@ def register_all_platforms():
 
     # MetaX (沐曦)
     try:
-        from verl_hardware_plugin.platforms import platform_metax  # noqa: F401
+        from verl_hardware_plugin.platforms import platform_cuda_metax  # noqa: F401
 
         logger.info("Registered platform: metax")
     except Exception as e:
         logger.debug("MetaX platform not registered: %s", e)
+

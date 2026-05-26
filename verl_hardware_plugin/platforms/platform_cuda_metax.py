@@ -36,6 +36,10 @@ class PlatformMetaX(PlatformBase):
         return "cuda"
 
     @property
+    def vendor_name(self) -> str:
+        return "metax"
+
+    @property
     def device_module(self) -> ModuleType:
         return torch.cuda
 

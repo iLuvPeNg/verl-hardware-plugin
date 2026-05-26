@@ -28,13 +28,17 @@ def _ensure_torch_xpu() -> bool:
         return False
 
 
-@PlatformRegistry.register(platform="xpu")
+@PlatformRegistry.register(platform="intel")
 class PlatformXPU(PlatformBase):
     """Platform backend for Intel XPU (Data Center GPU Max, Arc, etc.)."""
 
     @property
     def device_name(self) -> str:
         return "xpu"
+
+    @property
+    def vendor_name(self) -> str:
+        return "intel"
 
     @property
     def device_module(self) -> ModuleType:

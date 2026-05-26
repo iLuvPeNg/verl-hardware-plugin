@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
 
-@EngineRegistry.register(model_type="language_model", backend="megatron", device="metax")
+@EngineRegistry.register(model_type="language_model", backend="megatron", device="cuda", vendor="metax")
 class MegatronMetaXEngineWithLMHead(MegatronEngineWithLMHead):
     """Megatron Engine for MetaX GPUs with NCCL communication backend."""
 

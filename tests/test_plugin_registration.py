@@ -26,54 +26,53 @@ def _fresh_registries():
 class TestPlatformRegistration:
     """Verify that all hardware platforms register correctly."""
 
-    def test_flagos_registered(self):
-        from verl.plugin.platform.platform_manager import PlatformRegistry
-        from verl_hardware_plugin.platforms.flagos import PlatformFlagOS  # noqa: F401
-
-        assert "flagos" in PlatformRegistry.registered_names()
-        cls = PlatformRegistry.get("flagos")
-        assert cls is PlatformFlagOS
-
     def test_xpu_registered(self):
         from verl.plugin.platform.platform_manager import PlatformRegistry
         from verl_hardware_plugin.platforms.platform_xpu import PlatformXPU  # noqa: F401
 
-        assert "xpu" in PlatformRegistry.registered_names()
-        cls = PlatformRegistry.get("xpu")
+        assert "intel" in PlatformRegistry.registered_names()
+        cls = PlatformRegistry.get("intel")
         assert cls is PlatformXPU
 
     def test_mlu_registered(self):
         from verl.plugin.platform.platform_manager import PlatformRegistry
         from verl_hardware_plugin.platforms.platform_mlu import PlatformMLU  # noqa: F401
 
-        assert "mlu" in PlatformRegistry.registered_names()
-        cls = PlatformRegistry.get("mlu")
+        assert "cambricon" in PlatformRegistry.registered_names()
+        cls = PlatformRegistry.get("cambricon")
         assert cls is PlatformMLU
 
-    def test_flagos_detection_with_env(self):
-        """VERL_PLATFORM=flagos should select FlagOS platform."""
-        from verl.plugin.platform.platform_manager import PlatformRegistry, _detect_platform_name
-        from verl_hardware_plugin.platforms.flagos import PlatformFlagOS  # noqa: F401
+    def test_metax_registered(self):
+        from verl.plugin.platform.platform_manager import PlatformRegistry
+        from verl_hardware_plugin.platforms.platform_cuda_metax import PlatformMetaX  # noqa: F401
 
-        with _fresh_registries():
-            with mock.patch.dict(os.environ, {"VERL_PLATFORM": "flagos"}):
-                assert _detect_platform_name() == "flagos"
+        assert "metax" in PlatformRegistry.registered_names()
+        cls = PlatformRegistry.get("metax")
+        assert cls is PlatformMetaX
 
     def test_xpu_detection_with_env(self):
         from verl.plugin.platform.platform_manager import PlatformRegistry, _detect_platform_name
         from verl_hardware_plugin.platforms.platform_xpu import PlatformXPU  # noqa: F401
 
         with _fresh_registries():
-            with mock.patch.dict(os.environ, {"VERL_PLATFORM": "xpu"}):
-                assert _detect_platform_name() == "xpu"
+            with mock.patch.dict(os.environ, {"VERL_PLATFORM": "intel"}):
+                assert _detect_platform_name() == "intel"
 
     def test_mlu_detection_with_env(self):
         from verl.plugin.platform.platform_manager import PlatformRegistry, _detect_platform_name
         from verl_hardware_plugin.platforms.platform_mlu import PlatformMLU  # noqa: F401
 
         with _fresh_registries():
-            with mock.patch.dict(os.environ, {"VERL_PLATFORM": "mlu"}):
-                assert _detect_platform_name() == "mlu"
+            with mock.patch.dict(os.environ, {"VERL_PLATFORM": "cambricon"}):
+                assert _detect_platform_name() == "cambricon"
+
+    def test_metax_detection_with_env(self):
+        from verl.plugin.platform.platform_manager import PlatformRegistry, _detect_platform_name
+        from verl_hardware_plugin.platforms.platform_cuda_metax import PlatformMetaX  # noqa: F401
+
+        with _fresh_registries():
+            with mock.patch.dict(os.environ, {"VERL_PLATFORM": "metax"}):
+                assert _detect_platform_name() == "metax"
 
 
 class TestEngineRegistration:
@@ -86,9 +85,9 @@ class TestEngineRegistration:
             FSDPFlagOSEngineWithValueHead,
         )
 
-        assert EngineRegistry._engines["language_model"]["fsdp"]["flagos"] is FSDPFlagOSEngineWithLMHead
-        assert EngineRegistry._engines["language_model"]["fsdp2"]["flagos"] is FSDPFlagOSEngineWithLMHead
-        assert EngineRegistry._engines["value_model"]["fsdp"]["flagos"] is FSDPFlagOSEngineWithValueHead
+        assert EngineRegistry._engines["language_model"]["fsdp"][("cuda", "flagos")] is FSDPFlagOSEngineWithLMHead
+        assert EngineRegistry._engines["language_model"]["fsdp2"][("cuda", "flagos")] is FSDPFlagOSEngineWithLMHead
+        assert EngineRegistry._engines["value_model"]["fsdp"][("cuda", "flagos")] is FSDPFlagOSEngineWithValueHead
 
     def test_fsdp_xpu_engines_registered(self):
         from verl.workers.engine.base import EngineRegistry
@@ -97,8 +96,8 @@ class TestEngineRegistration:
             FSDPXPUEngineWithValueHead,
         )
 
-        assert EngineRegistry._engines["language_model"]["fsdp"]["xpu"] is FSDPXPUEngineWithLMHead
-        assert EngineRegistry._engines["value_model"]["fsdp"]["xpu"] is FSDPXPUEngineWithValueHead
+        assert EngineRegistry._engines["language_model"]["fsdp"][("xpu", "intel")] is FSDPXPUEngineWithLMHead
+        assert EngineRegistry._engines["value_model"]["fsdp"][("xpu", "intel")] is FSDPXPUEngineWithValueHead
 
     def test_fsdp_mlu_engines_registered(self):
         from verl.workers.engine.base import EngineRegistry
@@ -107,26 +106,42 @@ class TestEngineRegistration:
             FSDPMLUEngineWithValueHead,
         )
 
-        assert EngineRegistry._engines["language_model"]["fsdp"]["mlu"] is FSDPMLUEngineWithLMHead
-        assert EngineRegistry._engines["value_model"]["fsdp"]["mlu"] is FSDPMLUEngineWithValueHead
+        assert EngineRegistry._engines["language_model"]["fsdp"][("mlu", "cambricon")] is FSDPMLUEngineWithLMHead
+        assert EngineRegistry._engines["value_model"]["fsdp"][("mlu", "cambricon")] is FSDPMLUEngineWithValueHead
+
+    def test_fsdp_metax_engines_registered(self):
+        from verl.workers.engine.base import EngineRegistry
+        from verl_hardware_plugin.engines.fsdp_metax import (
+            FSDPMetaXEngineWithLMHead,
+            FSDPMetaXEngineWithValueHead,
+        )
+
+        assert EngineRegistry._engines["language_model"]["fsdp"][("cuda", "metax")] is FSDPMetaXEngineWithLMHead
+        assert EngineRegistry._engines["value_model"]["fsdp"][("cuda", "metax")] is FSDPMetaXEngineWithValueHead
 
     def test_megatron_flagos_engine_registered(self):
         from verl.workers.engine.base import EngineRegistry
         from verl_hardware_plugin.engines.megatron_flagos import MegatronFlagOSEngineWithLMHead
 
-        assert EngineRegistry._engines["language_model"]["megatron"]["flagos"] is MegatronFlagOSEngineWithLMHead
+        assert EngineRegistry._engines["language_model"]["megatron"][("cuda", "flagos")] is MegatronFlagOSEngineWithLMHead
 
     def test_megatron_xpu_engine_registered(self):
         from verl.workers.engine.base import EngineRegistry
         from verl_hardware_plugin.engines.megatron_xpu import MegatronXPUEngineWithLMHead
 
-        assert EngineRegistry._engines["language_model"]["megatron"]["xpu"] is MegatronXPUEngineWithLMHead
+        assert EngineRegistry._engines["language_model"]["megatron"][("xpu", "intel")] is MegatronXPUEngineWithLMHead
 
     def test_megatron_mlu_engine_registered(self):
         from verl.workers.engine.base import EngineRegistry
         from verl_hardware_plugin.engines.megatron_mlu import MegatronMLUEngineWithLMHead
 
-        assert EngineRegistry._engines["language_model"]["megatron"]["mlu"] is MegatronMLUEngineWithLMHead
+        assert EngineRegistry._engines["language_model"]["megatron"][("mlu", "cambricon")] is MegatronMLUEngineWithLMHead
+
+    def test_megatron_metax_engine_registered(self):
+        from verl.workers.engine.base import EngineRegistry
+        from verl_hardware_plugin.engines.megatron_metax import MegatronMetaXEngineWithLMHead
+
+        assert EngineRegistry._engines["language_model"]["megatron"][("cuda", "metax")] is MegatronMetaXEngineWithLMHead
 
 
 class TestFLEnvManager:

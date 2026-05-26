@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
 
-@EngineRegistry.register(model_type="language_model", backend="megatron", device="xpu")
+@EngineRegistry.register(model_type="language_model", backend="megatron", device="xpu", vendor="intel")
 class MegatronXPUEngineWithLMHead(MegatronEngineWithLMHead):
     """Megatron Engine for Intel XPU with xccl communication backend."""
 

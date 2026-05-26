@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
 
-@EngineRegistry.register(model_type="language_model", backend="megatron", device="flagos")
+@EngineRegistry.register(model_type="language_model", backend="megatron", device="cuda", vendor="flagos")
 class MegatronFlagOSEngineWithLMHead(MegatronEngineWithLMHead):
     """Megatron Engine with FlagGems operator acceleration for FlagOS devices."""
 

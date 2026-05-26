@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
 
-@EngineRegistry.register(model_type="language_model", backend=["fsdp", "fsdp2"], device="xpu")
+@EngineRegistry.register(model_type="language_model", backend=["fsdp", "fsdp2"], device="xpu", vendor="intel")
 class FSDPXPUEngineWithLMHead(FSDPEngineWithLMHead):
     """FSDP Engine for Intel XPU with xccl communication backend."""
 
@@ -42,7 +42,7 @@ class FSDPXPUEngineWithLMHead(FSDPEngineWithLMHead):
             logger.info("Enabled force_sum_reduction_for_comms for XPU")
 
 
-@EngineRegistry.register(model_type="value_model", backend=["fsdp", "fsdp2"], device="xpu")
+@EngineRegistry.register(model_type="value_model", backend=["fsdp", "fsdp2"], device="xpu", vendor="intel")
 class FSDPXPUEngineWithValueHead(FSDPEngineWithValueHead):
     """FSDP Engine for Intel XPU value model training."""
 

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
 
-@EngineRegistry.register(model_type="language_model", backend=["fsdp", "fsdp2"], device="mlu")
+@EngineRegistry.register(model_type="language_model", backend=["fsdp", "fsdp2"], device="mlu", vendor="cambricon")
 class FSDPMLUEngineWithLMHead(FSDPEngineWithLMHead):
     """FSDP Engine for Cambricon MLU with CNCL communication backend."""
 
@@ -35,7 +35,7 @@ class FSDPMLUEngineWithLMHead(FSDPEngineWithLMHead):
         logger.info("FSDPMLUEngineWithLMHead initialized for MLU")
 
 
-@EngineRegistry.register(model_type="value_model", backend=["fsdp", "fsdp2"], device="mlu")
+@EngineRegistry.register(model_type="value_model", backend=["fsdp", "fsdp2"], device="mlu", vendor="cambricon")
 class FSDPMLUEngineWithValueHead(FSDPEngineWithValueHead):
     """FSDP Engine for Cambricon MLU value model training."""
 

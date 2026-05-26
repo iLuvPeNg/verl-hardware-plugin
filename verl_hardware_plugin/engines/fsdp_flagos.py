@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
 
-@EngineRegistry.register(model_type="language_model", backend=["fsdp", "fsdp2"], device="flagos")
+@EngineRegistry.register(model_type="language_model", backend=["fsdp", "fsdp2"], device="cuda", vendor="flagos")
 class FSDPFlagOSEngineWithLMHead(FSDPEngineWithLMHead):
     """FSDP Engine with FlagGems operator acceleration for FlagOS devices."""
 
@@ -41,7 +41,7 @@ class FSDPFlagOSEngineWithLMHead(FSDPEngineWithLMHead):
         super().initialize()
 
 
-@EngineRegistry.register(model_type="value_model", backend=["fsdp", "fsdp2"], device="flagos")
+@EngineRegistry.register(model_type="value_model", backend=["fsdp", "fsdp2"], device="cuda", vendor="flagos")
 class FSDPFlagOSEngineWithValueHead(FSDPEngineWithValueHead):
     """FSDP Engine with FlagGems for FlagOS value model training."""
 

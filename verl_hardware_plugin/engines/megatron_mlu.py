@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
 
-@EngineRegistry.register(model_type="language_model", backend="megatron", device="mlu")
+@EngineRegistry.register(model_type="language_model", backend="megatron", device="mlu", vendor="cambricon")
 class MegatronMLUEngineWithLMHead(MegatronEngineWithLMHead):
     """Megatron Engine for Cambricon MLU with CNCL communication backend."""
 

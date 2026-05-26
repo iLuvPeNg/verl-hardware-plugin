@@ -32,13 +32,17 @@ def _ensure_torch_mlu() -> bool:
         return False
 
 
-@PlatformRegistry.register(platform="mlu")
+@PlatformRegistry.register(platform="cambricon")
 class PlatformMLU(PlatformBase):
     """Platform backend for Cambricon MLU."""
 
     @property
     def device_name(self) -> str:
         return "mlu"
+
+    @property
+    def vendor_name(self) -> str:
+        return "cambricon"
 
     @property
     def device_module(self) -> ModuleType:

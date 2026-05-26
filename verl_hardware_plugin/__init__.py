@@ -3,12 +3,10 @@
 
 """verl hardware plugin - Multi-chip platform and engine support.
 
-This package registers hardware platforms (FlagOS, XPU, MLU) and their
+This package registers hardware platforms (MetaX, XPU, MLU) and their
 corresponding training engines with verl's plugin system.
 
-Loading methods:
-    1. VERL_USE_EXTERNAL_MODULES=verl_hardware_plugin
-    2. setuptools entry_points (auto-discovered via verl.plugins group)
+Discovered automatically via setuptools entry_points (verl.plugins group).
 """
 
 import logging
