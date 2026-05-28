@@ -29,6 +29,8 @@ The plugin integrates with verl through two registries:
 Create a new file under `verl_hardware_plugin/platforms/`, e.g. `platform_my_vendor.py`:
 
 ```python
+import logging
+import os
 from contextlib import contextmanager
 from types import ModuleType
 from typing import Any, Optional
@@ -38,9 +40,16 @@ import torch
 from verl.plugin.platform.platform_base import PlatformBase
 from verl.plugin.platform.platform_manager import PlatformRegistry
 
+logger = logging.getLogger(__name__)
+logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
+
 
 @PlatformRegistry.register(platform="my_vendor")
 class PlatformMyDevice(PlatformBase):
+
+    # ------------------------------------------------------------------
+    # Core device management
+    # ------------------------------------------------------------------
 
     @property
     def device_name(self) -> str:
@@ -71,7 +80,14 @@ class PlatformMyDevice(PlatformBase):
         torch.my_device.set_device(device_index)
 
     def synchronize(self, device_index: Optional[int] = None) -> None:
-        torch.my_device.synchronize()
+        if device_index is not None:
+            torch.my_device.synchronize(device_index)
+        else:
+            torch.my_device.synchronize()
+
+    # ------------------------------------------------------------------
+    # Random number generator
+    # ------------------------------------------------------------------
 
     def manual_seed(self, seed: int) -> None:
         torch.my_device.manual_seed(seed)
@@ -79,14 +95,26 @@ class PlatformMyDevice(PlatformBase):
     def manual_seed_all(self, seed: int) -> None:
         torch.my_device.manual_seed_all(seed)
 
+    # ------------------------------------------------------------------
+    # Memory management
+    # ------------------------------------------------------------------
+
     def set_allocator_settings(self, settings: str) -> None:
         pass  # leave empty if unsupported
 
     def empty_cache(self) -> None:
         torch.my_device.empty_cache()
 
+    # ------------------------------------------------------------------
+    # Device properties
+    # ------------------------------------------------------------------
+
     def get_device_capability(self, device_index: int = 0) -> tuple[Optional[int], Optional[int]]:
         return (None, None)
+
+    # ------------------------------------------------------------------
+    # Distributed communication
+    # ------------------------------------------------------------------
 
     def communication_backend_name(self) -> str:
         return "my_ccl"  # collective communication backend name
@@ -94,17 +122,29 @@ class PlatformMyDevice(PlatformBase):
     def visible_devices_envvar(self) -> str:
         return "MY_DEVICE_VISIBLE_DEVICES"
 
+    # ------------------------------------------------------------------
+    # Ray integration
+    # ------------------------------------------------------------------
+
     def ray_resource_name(self) -> str:
         return "MY_DEVICE"  # Ray resource name
 
     def ray_resource_options(self, num_gpus: float) -> dict[str, Any]:
-        return {"num_gpus": num_gpus}
+        return {"resources": {"MY_DEVICE": num_gpus}}
 
     def ray_noset_envvars(self) -> list[str]:
         return ["RAY_EXPERIMENTAL_NOSET_MY_DEVICE_VISIBLE_DEVICES"]
 
+    # ------------------------------------------------------------------
+    # IPC support
+    # ------------------------------------------------------------------
+
     def is_ipc_supported(self) -> bool:
         return False
+
+    # ------------------------------------------------------------------
+    # Profiling helpers
+    # ------------------------------------------------------------------
 
     @contextmanager
     def nvtx_range(self, msg: str):
@@ -115,6 +155,31 @@ class PlatformMyDevice(PlatformBase):
 
     def profiler_stop(self) -> None:
         pass
+
+    # ------------------------------------------------------------------
+    # Model patches
+    # ------------------------------------------------------------------
+
+    def apply_model_patches(self, model_type: str) -> None:
+        pass  # apply platform-specific model patches if needed
+
+    # ------------------------------------------------------------------
+    # Rollout engine integration
+    # ------------------------------------------------------------------
+
+    def rollout_env_vars(self) -> dict[str, str]:
+        return {}  # platform-specific env vars for rollout engines
+
+    # ------------------------------------------------------------------
+    # Collective communication
+    # ------------------------------------------------------------------
+
+    def get_collective_module(self) -> Any:
+        return None  # return collective comm module if available
+
+    # ------------------------------------------------------------------
+    # Low-level runtime API
+    # ------------------------------------------------------------------
 
     def cudart(self) -> Any:
         return None
@@ -191,6 +256,39 @@ Create `docs/my_vendor.md` containing:
 
 Add registration verification tests in `tests/test_plugin_registration.py`.
 
+## PlatformBase Interface Reference
+
+The following table lists all methods that must be implemented when subclassing `PlatformBase`:
+
+| Method | Category | Required | Description |
+|--------|----------|----------|-------------|
+| `device_name` | Core | Yes (abstract) | Torch device type string |
+| `vendor_name` | Core | Yes (abstract) | Hardware vendor identifier |
+| `device_module` | Core | Yes (abstract) | `torch.<device>` namespace module |
+| `is_available(use_smi_check)` | Core | Yes (abstract) | Check if hardware is present |
+| `current_device()` | Core | Yes (abstract) | Current device index |
+| `device_count()` | Core | Yes (abstract) | Number of available devices |
+| `set_device(device_index)` | Core | Yes (abstract) | Select active device |
+| `synchronize(device_index)` | Core | Yes (abstract) | Block until device work completes |
+| `manual_seed(seed)` | RNG | Yes (abstract) | Seed current device RNG |
+| `manual_seed_all(seed)` | RNG | Yes (abstract) | Seed all devices' RNG |
+| `set_allocator_settings(settings)` | Memory | Yes (abstract) | Configure memory allocator |
+| `empty_cache()` | Memory | Yes (abstract) | Release unused cached memory |
+| `get_device_capability(device_index)` | Properties | Yes (abstract) | `(major, minor)` compute capability |
+| `communication_backend_name()` | Distributed | Yes (abstract) | Default comm backend (e.g. `"nccl"`) |
+| `visible_devices_envvar()` | Distributed | Yes (abstract) | Env var controlling visible devices |
+| `nvtx_range(msg)` | Profiling | Yes (abstract) | Context manager for profiler range |
+| `profiler_start()` | Profiling | Yes (abstract) | Start device profiler |
+| `profiler_stop()` | Profiling | Yes (abstract) | Stop device profiler |
+| `apply_model_patches(model_type)` | Model | Yes (abstract) | Apply platform-specific model patches |
+| `ray_resource_name()` | Ray | Yes (abstract) | Ray accelerator resource name |
+| `ray_noset_envvars()` | Ray | Yes (abstract) | `RAY_EXPERIMENTAL_NOSET_*` env vars |
+| `ray_resource_options(num_gpus)` | Ray | No (has default) | Ray actor resource options dict |
+| `is_ipc_supported()` | IPC | Yes (abstract) | Whether IPC tensor sharing works |
+| `rollout_env_vars()` | Rollout | No (has default) | Env vars for rollout engines |
+| `get_collective_module()` | Collective | No (has default) | Collective comm module |
+| `cudart()` | Runtime | Yes (abstract) | CUDA runtime API object or None |
+
 ## Engine Lookup Logic
 
 The `EngineRegistry.get_engine_cls(model_type, backend)` lookup follows this priority:
@@ -210,6 +308,7 @@ Environment variable overrides:
 3. **Auto-detection**: The first platform whose `is_available(use_smi_check=True)` returns True is selected, or it can be forced via `VERL_PLATFORM`.
 4. **Minimal intrusion**: Engine extensions inject logic through inheritance + `initialize()` without modifying base class behavior.
 5. **Two-dimensional engine key**: `(device, vendor)` allows multiple vendors sharing the same device type (e.g. MetaX and FlagOS both use `"cuda"`) to have distinct engines.
+6. **Section-based organization**: Platform implementations should group methods by category using comment section headers for readability and consistency.
 
 ## Reference Implementations
 
@@ -220,7 +319,6 @@ The following files in this repository serve as examples:
 | Intel XPU | `platforms/platform_xpu.py` | `engines/fsdp_xpu.py`, `engines/megatron_xpu.py` |
 | Cambricon MLU | `platforms/platform_mlu.py` | `engines/fsdp_mlu.py`, `engines/megatron_mlu.py` |
 | MetaX | `platforms/platform_cuda_metax.py` | `engines/fsdp_metax.py`, `engines/megatron_metax.py` |
-| FlagOS | `platforms/flagos.py` | `engines/fsdp_flagos.py`, `engines/megatron_flagos.py` |
 
 ## Related Resources
 

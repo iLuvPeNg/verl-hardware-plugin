@@ -135,9 +135,7 @@ def may_enable_flag_gems(phase: str = "training") -> None:
         if whitelist and blacklist:
             raise ValueError(f"Cannot set both whitelist and blacklist for {phase} phase.")
 
-        record_path = os.environ.get(
-            f"{'TRAINING' if phase == 'training' else 'ROLLOUT'}_FLAGGEMS_PATH"
-        )
+        record_path = os.environ.get(f"{'TRAINING' if phase == 'training' else 'ROLLOUT'}_FLAGGEMS_PATH")
 
         if whitelist:
             logger.info("[FlagGems][%s] Enable only: %s", phase, whitelist)
@@ -153,6 +151,5 @@ def may_enable_flag_gems(phase: str = "training") -> None:
 
     except ImportError:
         logger.warning(
-            "FlagGems is not available but USE_FLAGGEMS is set. "
-            "Please install FlagGems: pip install flag-gems"
+            "FlagGems is not available but USE_FLAGGEMS is set. Please install FlagGems: pip install flag-gems"
         )

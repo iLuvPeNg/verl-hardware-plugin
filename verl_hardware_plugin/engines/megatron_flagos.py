@@ -11,7 +11,6 @@ import os
 
 from verl.workers.engine.base import EngineRegistry
 from verl.workers.engine.megatron.transformer_impl import MegatronEngineWithLMHead
-
 from verl_hardware_plugin.utils import FLEnvManager, may_enable_flag_gems
 
 logger = logging.getLogger(__name__)

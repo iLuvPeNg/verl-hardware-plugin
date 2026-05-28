@@ -28,5 +28,40 @@ include = ["verl_hardware_plugin*"]
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E", "F", "UP", "B", "I"]
-ignore = ["E731", "F405", "F403"]
+isort = {known-first-party = ["verl_hardware_plugin", "verl"]}
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # isort
+    "I",
+    # logging format
+    "G",
+]
+ignore = [
+    # star imports
+    "F405", "F403",
+    # lambda expression assignment
+    "E731",
+    # Loop control variable not used within loop body
+    "B007",
+    # f-string format
+    "UP032",
+    # `.log()` statement uses f-string
+    "G004",
+    # X | None for type annotations
+    "UP045",
+    # deprecated import
+    "UP035",
+]
+
+[tool.mypy]
+pretty = true
+ignore_missing_imports = true
+explicit_package_bases = true
+follow_imports = "skip"

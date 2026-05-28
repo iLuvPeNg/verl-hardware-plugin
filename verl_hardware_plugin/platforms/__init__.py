@@ -41,4 +41,3 @@ def register_all_platforms():
         logger.info("Registered platform: metax")
     except Exception as e:
         logger.debug("MetaX platform not registered: %s", e)
-

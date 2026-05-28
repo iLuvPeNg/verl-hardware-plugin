@@ -51,7 +51,7 @@ class TestPlatformRegistration:
         assert cls is PlatformMetaX
 
     def test_xpu_detection_with_env(self):
-        from verl.plugin.platform.platform_manager import PlatformRegistry, _detect_platform_name
+        from verl.plugin.platform.platform_manager import _detect_platform_name
         from verl_hardware_plugin.platforms.platform_xpu import PlatformXPU  # noqa: F401
 
         with _fresh_registries():
@@ -59,7 +59,7 @@ class TestPlatformRegistration:
                 assert _detect_platform_name() == "intel"
 
     def test_mlu_detection_with_env(self):
-        from verl.plugin.platform.platform_manager import PlatformRegistry, _detect_platform_name
+        from verl.plugin.platform.platform_manager import _detect_platform_name
         from verl_hardware_plugin.platforms.platform_mlu import PlatformMLU  # noqa: F401
 
         with _fresh_registries():
@@ -67,7 +67,7 @@ class TestPlatformRegistration:
                 assert _detect_platform_name() == "cambricon"
 
     def test_metax_detection_with_env(self):
-        from verl.plugin.platform.platform_manager import PlatformRegistry, _detect_platform_name
+        from verl.plugin.platform.platform_manager import _detect_platform_name
         from verl_hardware_plugin.platforms.platform_cuda_metax import PlatformMetaX  # noqa: F401
 
         with _fresh_registries():
@@ -123,7 +123,9 @@ class TestEngineRegistration:
         from verl.workers.engine.base import EngineRegistry
         from verl_hardware_plugin.engines.megatron_flagos import MegatronFlagOSEngineWithLMHead
 
-        assert EngineRegistry._engines["language_model"]["megatron"][("cuda", "flagos")] is MegatronFlagOSEngineWithLMHead
+        assert (
+            EngineRegistry._engines["language_model"]["megatron"][("cuda", "flagos")] is MegatronFlagOSEngineWithLMHead
+        )
 
     def test_megatron_xpu_engine_registered(self):
         from verl.workers.engine.base import EngineRegistry
@@ -135,7 +137,9 @@ class TestEngineRegistration:
         from verl.workers.engine.base import EngineRegistry
         from verl_hardware_plugin.engines.megatron_mlu import MegatronMLUEngineWithLMHead
 
-        assert EngineRegistry._engines["language_model"]["megatron"][("mlu", "cambricon")] is MegatronMLUEngineWithLMHead
+        assert (
+            EngineRegistry._engines["language_model"]["megatron"][("mlu", "cambricon")] is MegatronMLUEngineWithLMHead
+        )
 
     def test_megatron_metax_engine_registered(self):
         from verl.workers.engine.base import EngineRegistry

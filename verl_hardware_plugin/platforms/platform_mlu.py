@@ -21,12 +21,14 @@ from verl.plugin.platform.platform_manager import PlatformRegistry
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
+
 def _ensure_torch_mlu() -> bool:
     """Try to import torch_mlu so that torch.mlu becomes available."""
     if hasattr(torch, "mlu"):
         return True
     try:
         import torch_mlu  # noqa: F401
+
         return hasattr(torch, "mlu")
     except ImportError:
         return False
@@ -35,6 +37,10 @@ def _ensure_torch_mlu() -> bool:
 @PlatformRegistry.register(platform="cambricon")
 class PlatformMLU(PlatformBase):
     """Platform backend for Cambricon MLU."""
+
+    # ------------------------------------------------------------------
+    # Core device management
+    # ------------------------------------------------------------------
 
     @property
     def device_name(self) -> str:
@@ -70,11 +76,19 @@ class PlatformMLU(PlatformBase):
         else:
             torch.mlu.synchronize()
 
+    # ------------------------------------------------------------------
+    # Random number generator
+    # ------------------------------------------------------------------
+
     def manual_seed(self, seed: int) -> None:
         torch.mlu.manual_seed(seed)
 
     def manual_seed_all(self, seed: int) -> None:
         torch.mlu.manual_seed_all(seed)
+
+    # ------------------------------------------------------------------
+    # Memory management
+    # ------------------------------------------------------------------
 
     def set_allocator_settings(self, settings: str) -> None:
         try:
@@ -85,6 +99,10 @@ class PlatformMLU(PlatformBase):
     def empty_cache(self) -> None:
         torch.mlu.empty_cache()
 
+    # ------------------------------------------------------------------
+    # Device properties
+    # ------------------------------------------------------------------
+
     def get_device_capability(self, device_index: int = 0) -> tuple[Optional[int], Optional[int]]:
         if hasattr(torch.mlu, "get_device_capability"):
             result = torch.mlu.get_device_capability(device_index)
@@ -93,11 +111,19 @@ class PlatformMLU(PlatformBase):
             return result
         return (None, None)
 
+    # ------------------------------------------------------------------
+    # Distributed communication
+    # ------------------------------------------------------------------
+
     def communication_backend_name(self) -> str:
         return "cncl"
 
     def visible_devices_envvar(self) -> str:
         return "MLU_VISIBLE_DEVICES"
+
+    # ------------------------------------------------------------------
+    # Ray integration
+    # ------------------------------------------------------------------
 
     def ray_resource_name(self) -> str:
         return "MLU"
@@ -108,8 +134,16 @@ class PlatformMLU(PlatformBase):
     def ray_noset_envvars(self) -> list[str]:
         return ["RAY_EXPERIMENTAL_NOSET_MLU_VISIBLE_DEVICES"]
 
+    # ------------------------------------------------------------------
+    # IPC support
+    # ------------------------------------------------------------------
+
     def is_ipc_supported(self) -> bool:
         return False
+
+    # ------------------------------------------------------------------
+    # Profiling helpers
+    # ------------------------------------------------------------------
 
     @contextmanager
     def nvtx_range(self, msg: str):
@@ -120,6 +154,31 @@ class PlatformMLU(PlatformBase):
 
     def profiler_stop(self) -> None:
         pass
+
+    # ------------------------------------------------------------------
+    # Model patches
+    # ------------------------------------------------------------------
+
+    def apply_model_patches(self, model_type: str) -> None:
+        pass
+
+    # ------------------------------------------------------------------
+    # Rollout engine integration
+    # ------------------------------------------------------------------
+
+    def rollout_env_vars(self) -> dict[str, str]:
+        return {}
+
+    # ------------------------------------------------------------------
+    # Collective communication
+    # ------------------------------------------------------------------
+
+    def get_collective_module(self) -> Any:
+        return None
+
+    # ------------------------------------------------------------------
+    # Low-level runtime API
+    # ------------------------------------------------------------------
 
     def cudart(self) -> Any:
         return None

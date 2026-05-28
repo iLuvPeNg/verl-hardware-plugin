@@ -12,8 +12,8 @@ Discovered automatically via setuptools entry_points (verl.plugins group).
 import logging
 import os
 
-from verl_hardware_plugin.platforms import register_all_platforms
 from verl_hardware_plugin.engines import register_all_engines
+from verl_hardware_plugin.platforms import register_all_platforms
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
