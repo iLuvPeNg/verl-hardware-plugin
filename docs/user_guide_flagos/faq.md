@@ -60,31 +60,18 @@ export TRAINING_FL_FLAGOS_BLACKLIST="flash_attention"
 
 Whitelist and blacklist are mutually exclusive — do not set both at the same time.
 
-### Q: What models are supported?
-
-In theory, all models supported by vLLM and Megatron-LM can run on FlagOS as long as no unsupported operators are involved. End-to-end verified models include:
-
-| Model | Status |
-|-------|--------|
-| Qwen3.5-397B-A17B | Supported |
-| Qwen3-Next-80B-A3B | Supported |
-| Qwen3-4B | Supported |
-| MiniCPM-o 4.5 | Supported |
-| GLM-5 | Supported |
-| Qwen3.5-35B-A3B | Supported |
-
 ### Q: What hardware platforms are supported?
 
 | Chip Vendor | Status |
 |-------------|--------|
 | NVIDIA | Supported |
-| Ascend | Supported |
-| MetaX | Merging |
-| Pingtouge-Zhenwu | Supported |
-| Iluvatar | Supported |
-| Tsingmicro | Merging |
-| Moore Threads | Merging |
-| Hygon | Merging |
+| Ascend | TBD |
+| MetaX | TBD |
+| Pingtouge-Zhenwu | TBD |
+| Iluvatar | TBD |
+| Tsingmicro | TBD |
+| Moore Threads | TBD |
+| Hygon | TBD |
 
 ---
 
