@@ -15,7 +15,7 @@ docker pull harbor.baai.ac.cn/flagos21-base/iluvatarcorex-4.4.0-ubuntu24-py312-b
 
 Or use the verl official image, see [verl installation docs](https://verl.readthedocs.io/en/latest/start/install.html).
 
-Start a container (NVIDIA example):
+Start a container (e.g. from iluvatarcorex-4.4.0-ubuntu24-py312-base:20260601v1):
 
 ```bash
 docker_image=harbor.baai.ac.cn/flagos21-base/iluvatarcorex-4.4.0-ubuntu24-py312-base:20260601v1 
